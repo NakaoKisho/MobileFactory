@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mobilefactory.data.OfflineTimeRepository
 import com.example.mobilefactory.database.model.TimeEntity
+import com.example.mobilefactory.network.Dispatcher
+import com.example.mobilefactory.network.MbfDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -16,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegistrationScreenViewModel @Inject constructor(
-    private val offlineTimeRepository: OfflineTimeRepository
+    private val offlineTimeRepository: OfflineTimeRepository,
+    @Dispatcher(MbfDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     val uiState = offlineTimeRepository
         .getAllTime()
@@ -80,7 +83,7 @@ class RegistrationScreenViewModel @Inject constructor(
                 }
             }
 
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 offlineTimeRepository
                     .insertTime(
                         TimeEntity(
